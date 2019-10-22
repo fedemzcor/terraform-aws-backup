@@ -72,10 +72,24 @@ resource "aws_iam_role_policy_attachment" "default" {
   role       = join("", aws_iam_role.default.*.name)
 }
 
+#resource "aws_backup_selection" "default" {
+#  count        = var.enabled ? 1 : 0
+#  name         = module.label.id
+#  iam_role_arn = join("", aws_iam_role.default.*.arn)
+#  plan_id      = join("", aws_backup_plan.default.*.id)
+#  resources    = var.backup_resources
+#}
+
 resource "aws_backup_selection" "default" {
   count        = var.enabled ? 1 : 0
+  iam_role_arn = "${aws_iam_role.example.arn}"
   name         = module.label.id
   iam_role_arn = join("", aws_iam_role.default.*.arn)
   plan_id      = join("", aws_backup_plan.default.*.id)
-  resources    = var.backup_resources
+
+  selection_tag {
+    type  = "STRINGEQUALS"
+    key   = "Backup"
+    value = "yes"
+  }
 }
